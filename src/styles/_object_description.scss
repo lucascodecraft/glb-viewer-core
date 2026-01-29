@@ -1,0 +1,64 @@
+/* CSS Limpo - As classes da resize window (que são globais) cuidarão do básico. 
+   Adicionamos apenas especificidades da janela de descrição aqui */
+
+.object-description-window {
+    top: 20px !important;
+    right: 20px !important;
+    left: auto !important;
+    /* Importante para não quebrar o layout */
+
+    width: 350px;
+    height: auto;
+
+    /* Garante z-index maior que o details se sobrepor */
+    z-index: 95;
+
+    .object-description-window__title {
+        font-weight: 600;
+        font-size: 14px;
+        color: var(--text-color);
+        flex-grow: 1;
+    }
+
+    .object-description-window__close {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    .object-description-window__content {
+        padding: 5px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-color);
+    }
+
+    // Responsividade Mobile (Smartphone / iPhone X)
+    @media screen and (max-width: 600px) {
+        right: 10px !important;
+        left: 10px !important;
+        width: calc(100% - 20px) !important;
+        top: 10px !important;
+        transform: none !important;
+        max-height: 30vh;
+
+        .object-description-window__title {
+            font-size: 12px;
+        }
+
+        .object-description-window__content {
+            font-size: 11px;
+        }
+    }
+}
