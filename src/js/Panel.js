@@ -1,13 +1,10 @@
 
-
-
-
-
-
 import { FocusHub } from './FocusHub.js';
 
-class Panel {
-  constructor(ui_controller) {
+class Panel
+{
+  constructor(ui_controller)
+  {
     this.$container = document.querySelector('.panel');
     this.$buttons_container = document.querySelector('.panel-buttons');
     this.$content = document.querySelector('.panel-content');
@@ -41,30 +38,36 @@ class Panel {
 
     // Esconde botões desativados visualmente
     const buttons_to_hide = ['hierarchy', 'textures', 'materials', 'geometries', 'info', 'animations'];
-    buttons_to_hide.forEach(name => {
+    buttons_to_hide.forEach(name =>
+    {
       const btn = this.$buttons_container.querySelector(`.panel-button[data-name="${name}"]`);
       if (btn) btn.style.display = 'none';
     });
 
-    for (const button of Object.values(this.buttons)) {
-      if (button) { // Check if button exists (in case we comment out above)
+    for (const button of Object.values(this.buttons))
+    {
+      if (button)
+      { // Check if button exists (in case we comment out above)
         button.addEventListener('click', this.handle_button_click.bind(this, button));
       }
     }
   }
 
-  update_contents(object3d) {
+  update_contents(object3d)
+  {
     // this.contents.hierarchy.build_hierarchy_tree(object3d);
     // this.contents.textures.update_contents(object3d);
     // this.contents.materials.update_contents(object3d);
     // this.contents.geometries.update_contents(object3d);
   }
 
-  handle_object_click(object3d) {
+  handle_object_click(object3d)
+  {
     this.ui_controller.handle_object_click(object3d);
   }
 
-  handle_mesh_name_click(mesh_name) {
+  handle_mesh_name_click(mesh_name)
+  {
     /*
     // Hierarchy removed, so we can't search via hierarchy tree directly in the same way if it depends on UI
     // But maybe we need a way to find objects if FocusHub relies on this?
@@ -74,9 +77,11 @@ class Panel {
     */
 
     // Temporary fallback: try to find via scene_controller if hierarchy is disabled
-    if (this.scene_controller && this.scene_controller.scene) {
+    if (this.scene_controller && this.scene_controller.scene)
+    {
       const object3d = this.scene_controller.scene.getObjectByName(mesh_name);
-      if (object3d) {
+      if (object3d)
+      {
         this.ui_controller.handle_object_click(object3d);
         return true;
       }
@@ -91,7 +96,8 @@ class Panel {
     */
   }
 
-  init(scene_controller, details_panel) {
+  init(scene_controller, details_panel)
+  {
     this.scene_controller = scene_controller;
     scene_controller.subscribe(this);
 
@@ -105,7 +111,8 @@ class Panel {
     this.open_panel();
   }
 
-  on_model_loaded(model) {
+  on_model_loaded(model)
+  {
     /*
     if (this.contents.info.get_texture_count() > 0) {
       this.buttons.textures.classList.remove('hidden');
@@ -126,20 +133,25 @@ class Panel {
     */
   }
 
-  handle_button_click(button) {
+  handle_button_click(button)
+  {
     const button_name = button.dataset.name;
     const content = this.contents[button_name];
 
     if (!content) return; // Guard clause
 
-    if (button.classList.contains('panel-button--active')) {
-      if (content.is_focused()) {
+    if (button.classList.contains('panel-button--active'))
+    {
+      if (content.is_focused())
+      {
         content.shake();
       }
       content.bring_forward();
     }
-    else {
-      if (!content.has_changed) {
+    else
+    {
+      if (!content.has_changed)
+      {
         const position = this.calculate_initial_position();
         content.$container.style.top = `${position.top}px`;
         content.$container.style.left = `${position.left}px`;
@@ -151,41 +163,51 @@ class Panel {
     }
   }
 
-  set_active_button(button_name) {
+  set_active_button(button_name)
+  {
     this.close_panel();
 
     // Only attempt to toggle class if button reference exists
-    if (this.buttons[button_name]) {
+    if (this.buttons[button_name])
+    {
       this.buttons[button_name].classList.add('panel-button--active');
     }
   }
 
-  deactivate_button(button_name) {
-    if (this.buttons[button_name]) {
+  deactivate_button(button_name)
+  {
+    if (this.buttons[button_name])
+    {
       this.buttons[button_name].classList.remove('panel-button--active');
     }
 
-    if (this.$buttons_container.querySelector('.panel-button--active') === null) {
+    if (this.$buttons_container.querySelector('.panel-button--active') === null)
+    {
       this.open_panel();
     }
   }
 
-  open_panel() {
+  open_panel()
+  {
     this.$buttons_container.classList.add('panel-buttons--open');
   }
 
-  close_panel() {
+  close_panel()
+  {
     this.$buttons_container.classList.remove('panel-buttons--open');
   }
 
-  calculate_initial_position() {
+  calculate_initial_position()
+  {
     const positions = [];
     const startTop = 10;
     const startLeft = 60;
     const step = 25;
 
-    for (const [name, content] of Object.entries(this.contents)) {
-      if (this.buttons[name] && this.buttons[name].classList.contains('panel-button--active')) {
+    for (const [name, content] of Object.entries(this.contents))
+    {
+      if (this.buttons[name] && this.buttons[name].classList.contains('panel-button--active'))
+      {
         const rect = content.$container.getBoundingClientRect();
         positions.push({
           top: rect.top,
@@ -194,9 +216,12 @@ class Panel {
       }
     }
 
-    const find_available_position = (top, left) => {
-      for (const pos of positions) {
-        if (Math.abs(pos.top - top) < step && Math.abs(pos.left - left) < step) {
+    const find_available_position = (top, left) =>
+    {
+      for (const pos of positions)
+      {
+        if (Math.abs(pos.top - top) < step && Math.abs(pos.left - left) < step)
+        {
           return find_available_position(top + step, left + step);
         }
       }
