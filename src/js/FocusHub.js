@@ -1,8 +1,10 @@
 import { ResizableWindow } from './ResizeableWindow.js';
 import { ObjectDescription } from './ObjectDescription.js';
 
-class FocusHub extends ResizableWindow {
-  constructor(panel, name) {
+class FocusHub extends ResizableWindow
+{
+  constructor(panel, name)
+  {
     const container = document.querySelector('.focus-hub');
     const drag_handle = container.querySelector('.focus-hub-header');
     const content_container = container.querySelector('.focus-hub-content');
@@ -38,37 +40,45 @@ class FocusHub extends ResizableWindow {
     ];
   }
 
-  init(scene_controller) {
+  init(scene_controller)
+  {
     this.scene_controller = scene_controller;
     this.render_buttons();
   }
 
-  set_focus_objects(objects_list) {
-    if (Array.isArray(objects_list)) {
+  set_focus_objects(objects_list)
+  {
+    if (Array.isArray(objects_list))
+    {
       this.focus_objects = objects_list;
       this.render_buttons();
     }
   }
 
-  show() {
+  show()
+  {
     this.$container.classList.remove('hidden');
   }
 
-  hide() {
+  hide()
+  {
     this.$container.classList.add('hidden');
     this.objectDescription.hide();
     this.objectDescription.hide();
   }
 
-  handle_close_button_click() {
+  handle_close_button_click()
+  {
     this.hide();
     this.panel.deactivate_button(this.name);
   }
 
-  render_buttons() {
+  render_buttons()
+  {
     this.$content_container.innerHTML = '';
 
-    if (this.focus_objects.length === 0) {
+    if (this.focus_objects.length === 0)
+    {
       const empty_msg = document.createElement('div');
       empty_msg.style.padding = '10px';
       empty_msg.style.opacity = '0.7';
@@ -77,7 +87,8 @@ class FocusHub extends ResizableWindow {
       return;
     }
 
-    this.focus_objects.forEach(item => {
+    this.focus_objects.forEach(item =>
+    {
       const objId = typeof item === 'string' ? item : item.id;
       const objLabel = typeof item === 'string' ? item : (item.label || item.id);
       const objDesc = typeof item === 'string' ? '' : (item.description || '');
@@ -85,34 +96,43 @@ class FocusHub extends ResizableWindow {
       const btn = document.createElement('div');
       btn.className = 'focus-hub-button';
       btn.textContent = objLabel;
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', () =>
+      {
         this.handle_button_click(objId, btn, objLabel, objDesc);
       });
       this.$content_container.appendChild(btn);
     });
   }
 
-  handle_button_click(name, btnElement, label, description) {
+  handle_button_click(name, btnElement, label, description)
+  {
     const all_btns = this.$content_container.querySelectorAll('.focus-hub-button');
     all_btns.forEach(b => b.classList.remove('focus-hub-button--active'));
 
     const found = this.panel.handle_mesh_name_click(name);
 
-    if (found) {
+    if (found)
+    {
       btnElement.classList.add('focus-hub-button--active');
       this.objectDescription.show(label, description);
 
       // Auto-close on mobile (iPhone X / Smartphone)
-      if (window.innerWidth <= 600) {
-        setTimeout(() => {
+      if (window.innerWidth <= 600)
+      {
+        setTimeout(() =>
+        {
           this.handle_close_button_click();
         }, 0); // Pequeno delay para o usuário ver o feedback visual do clique
       }
     }
-    else {
+    else
+    {
       console.warn(`FocusHub: Object '${name}' not found.`);
       btnElement.style.borderColor = '#ff4444';
-      setTimeout(() => { btnElement.style.borderColor = ''; }, 500);
+      setTimeout(() =>
+      {
+        btnElement.style.borderColor = '';
+      }, 500);
 
       this.objectDescription.hide();
     }
