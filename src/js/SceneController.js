@@ -38,8 +38,10 @@ import { SkeletonVisualizer } from './SkeletonVisualizer.js';
 import { StudioLightScene } from './StudioLightScene.js';
 import { Time } from './Time.js';
 
-class SceneController {
-  constructor(mainapp) {
+class SceneController
+{
+  constructor(mainapp)
+  {
     this.mainapp = mainapp;
     // console.log(REVISION);
 
@@ -112,8 +114,10 @@ class SceneController {
 
     this.scene.add(this.axis_helper);
 
-    this.selected_empty_object.traverse(child => {
-      if (child.material) {
+    this.selected_empty_object.traverse(child =>
+    {
+      if (child.material)
+      {
         child.material.depthTest = false;
         child.material.depthFunc = AlwaysDepth;
         child.renderOrder = 99999;
@@ -125,10 +129,10 @@ class SceneController {
     this.skeleton_visualizer = new SkeletonVisualizer();
     this.overlay_scene.add(this.skeleton_visualizer);
     this.scene_drawcall_count = 0;
-
   }
 
-  init(ui_controller) {
+  init(ui_controller)
+  {
     this.ui_controller = ui_controller;
     this.animate();
 
@@ -145,7 +149,8 @@ class SceneController {
     // })));
   }
 
-  setLibURIs(webview_path) {
+  setLibURIs(webview_path)
+  {
     console.log('Setting WebView URI:', webview_path);
 
     this.draco_loader.setDecoderPath(`${webview_path}/lib/draco/`);
@@ -158,29 +163,35 @@ class SceneController {
     this.loader.setMeshoptDecoder(this.meshopt_decoder);
   }
 
-  loadModelFromBase64(base64, fileSize) {
+  loadModelFromBase64(base64, fileSize)
+  {
     this.file_size = fileSize || 0;
     const binary = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
     // Feed this into GLTFLoader instead of fetch()
-    this.loader.parse(binary.buffer, '', (gltf) => {
+    this.loader.parse(binary.buffer, '', (gltf) =>
+    {
       this.on_model_loaded(gltf);
     }, console.error);
   }
 
-  loadModelFromUri(dataUri, fileSize) {
-    if (!dataUri) {
+  loadModelFromUri(dataUri, fileSize)
+  {
+    if (!dataUri)
+    {
       console.error('No data URI provided for model loading');
       return;
     }
     console.log('Loading model from data URI:', dataUri);
 
     this.file_size = fileSize || 0;
-    this.loader.load(dataUri, (gltf) => {
+    this.loader.load(dataUri, (gltf) =>
+    {
       this.on_model_loaded(gltf);
     });
   }
 
-  on_model_loaded(gltf) {
+  on_model_loaded(gltf)
+  {
     // console.log('GLB loaded', gltf);
     this.model = gltf.scene;
     this.gltf = gltf;
@@ -188,10 +199,13 @@ class SceneController {
 
     this.scene.add(this.model);
     this.model.updateMatrixWorld(true);
-    this.model.traverse(child => {
+    this.model.traverse(child =>
+    {
       child.frustumCulled = false;
-      if (child.geometry) {
-        if (child.isSkinnedMesh) {
+      if (child.geometry)
+      {
+        if (child.isSkinnedMesh)
+        {
           child.computeBoundingBox();
         }
       }
@@ -212,7 +226,8 @@ class SceneController {
     this.camera.position.z += size * 1.5;
     this.camera.lookAt(center);
 
-    if (size < 10) {
+    if (size < 10)
+    {
       this.camera.near = 0.01;
     }
 
@@ -224,30 +239,37 @@ class SceneController {
 
     this.skeleton_visualizer.init_from_scene(this.model);
 
-    for (let i = 0; i < this.subscribers.length; i++) {
+    for (let i = 0; i < this.subscribers.length; i++)
+    {
       const subscriber = this.subscribers[i];
       subscriber.on_model_loaded(this.model);
     }
   }
 
-  update() {
+  update()
+  {
     this.controls.update();
     this.animation_controller.update();
-    if (this.input.left_mouse_button_pressed) {
+    if (this.input.left_mouse_button_pressed)
+    {
       this.elapsed_time_at_button_pressed = Date.now();
     }
 
-    if (this.model && this.input.left_mouse_button_released) {
-      if (Date.now() - this.elapsed_time_at_button_pressed < 200) {
+    if (this.model && this.input.left_mouse_button_released)
+    {
+      if (Date.now() - this.elapsed_time_at_button_pressed < 200)
+      {
         const raycaster = new Raycaster();
         raycaster.setFromCamera(this.input.NDC, this.camera);
         const intersections = raycaster.intersectObject(this.model, true);
 
         const visible_intersection = intersections.find(inter => inter.object.visible);
-        if (visible_intersection) {
+        if (visible_intersection)
+        {
           this.handle_object_click(visible_intersection.object, visible_intersection.instanceId);
         }
-        else {
+        else
+        {
           this.clear_selection();
         }
       }
@@ -258,23 +280,27 @@ class SceneController {
     this.input.clear();
   }
 
-  getWorldSizeFromScreenSize(desiredScreenSize, target_pos, camera) {
+  getWorldSizeFromScreenSize(desiredScreenSize, target_pos, camera)
+  {
     const vFov = (camera.fov * Math.PI) / 180; // Convert vertical FOV to radians
     const heightAtDistance = 2 * Math.tan(vFov / 2) * camera.position.distanceTo(target_pos);
     return (desiredScreenSize / window.innerHeight) * heightAtDistance;
   }
 
-  animate(elapsed_time) {
+  animate(elapsed_time)
+  {
     Time.update(elapsed_time);
     this.update();
     requestAnimationFrame(this.animate.bind(this));
   }
 
-  subscribe(object) {
+  subscribe(object)
+  {
     this.subscribers.push(object);
   }
 
-  highlight_object(obj, instance_id) {
+  highlight_object(obj, instance_id)
+  {
     this.clear_selection();
 
     this.skeleton_visualizer.hide_all();
@@ -283,8 +309,10 @@ class SceneController {
     this.selected_mesh.removeFromParent();
     this.selected_empty_object.removeFromParent();
 
-    if (obj.geometry) {
-      if (obj.isSkinnedMesh) {
+    if (obj.geometry)
+    {
+      if (obj.isSkinnedMesh)
+      {
         // this.selected_skinned_mesh.visible = true;
         this.selected_skinned_mesh.geometry = obj.geometry;
         this.selected_skinned_mesh.skeleton = obj.skeleton;
@@ -292,8 +320,10 @@ class SceneController {
         this.selected_skinned_mesh.morphTargetInfluences = obj.morphTargetInfluences;
         // this.scene.add(this.selected_skinned_mesh);
       }
-      else {
-        if (obj.isInstancedMesh) {
+      else
+      {
+        if (obj.isInstancedMesh)
+        {
           // this.selected_instanced_mesh.visible               = true;
           this.selected_instanced_mesh.geometry = obj.geometry;
           this.selected_instanced_mesh.morphTargetDictionary = obj.morphTargetDictionary;
@@ -304,7 +334,8 @@ class SceneController {
           this.selected_instanced_mesh.morphTexture = obj.morphTexture;
           // this.scene.add(this.selected_instanced_mesh);
         }
-        else {
+        else
+        {
           // this.selected_mesh.visible = true;
           this.selected_mesh.geometry = obj.geometry;
           this.selected_mesh.morphTargetDictionary = obj.morphTargetDictionary;
@@ -328,52 +359,62 @@ class SceneController {
       obj.getWorldQuaternion(this.selected_empty_object.quaternion);
       this.scene.add(this.selected_empty_object);
 
-      if (instance_id !== undefined) {
+      if (instance_id !== undefined)
+      {
         const mat = new Matrix4();
         obj.getMatrixAt(instance_id, mat);
         const world_mat = obj.matrixWorld.clone().multiply(mat);
         world_mat.decompose(this.selected_empty_object.position, this.selected_empty_object.quaternion, this.selected_empty_object.scale);
       }
     }
-    else {
+    else
+    {
       obj.getWorldPosition(this.selected_empty_object.position);
       obj.getWorldQuaternion(this.selected_empty_object.quaternion);
       this.scene.add(this.selected_empty_object);
     }
 
-    if (this.axis_helper.visible) {
+    if (this.axis_helper.visible)
+    {
       this.selected_empty_object.visible = true;
     }
 
-    if (obj.isBone) {
+    if (obj.isBone)
+    {
       this.skeleton_visualizer.show_bone_hierarchy(obj);
     }
   }
 
-  focus_camera_on_object(obj, highlight = true, instance_id) {
-    if (highlight) {
+  focus_camera_on_object(obj, highlight = true, instance_id)
+  {
+    if (highlight)
+    {
       this.highlight_object(obj, instance_id);
     }
 
     const box = new Box3();
 
-    if (obj.isInstancedMesh) {
+    if (obj.isInstancedMesh)
+    {
       box.copy(obj.boundingBox);
       box.applyMatrix4(obj.matrixWorld);
     }
-    else {
+    else
+    {
       box.setFromObject(obj);
     }
 
     const center = box.getCenter(new Vector3());
     const size = box.getSize(new Vector3());
     let max_radius = 0.01;
-    if (center.length() < 0.001) {
+    if (center.length() < 0.001)
+    {
       obj.getWorldPosition(center);
       max_radius = 0.25;
     }
 
-    if (instance_id !== undefined) {
+    if (instance_id !== undefined)
+    {
       const mat = new Matrix4();
       obj.getMatrixAt(instance_id, mat);
 
@@ -403,80 +444,98 @@ class SceneController {
 
     this.camera.far = Math.max(this.camera.far, fit_distance + size.length());
 
-    if (this.controls) {
+    if (this.controls)
+    {
       this.controls.target.copy(center);
       this.controls.update();
     }
   }
 
-  handle_object_click(object3d, instance_id) {
+  handle_object_click(object3d, instance_id)
+  {
     this.ui_controller.handle_object_click(object3d, instance_id);
   }
 
-  handle_action_click(action, active) {
-    switch (action) {
-      case 'wireframe':
-        this.toggle_wireframe(active);
-        break;
-      case 'double-sided':
-        this.toggle_double_sided(active);
-        break;
-      case 'normals':
-        this.toggle_normals(active);
-        break;
-      case 'normals-vectors':
-        this.toggle_normals_vectors(active);
-        break;
-      case 'tangents':
-        this.toggle_tangents(active);
-        break;
-      case 'selection-wireframe':
-        this.toggle_selection_wireframe(active);
-        break;
-      case 'origin-arrows':
-        this.toggle_origin_arrows(active);
-        break;
-      default:
-        break;
+  handle_action_click(action, active)
+  {
+    switch (action)
+    {
+    case 'wireframe':
+      this.toggle_wireframe(active);
+      break;
+    case 'double-sided':
+      this.toggle_double_sided(active);
+      break;
+    case 'normals':
+      this.toggle_normals(active);
+      break;
+    case 'normals-vectors':
+      this.toggle_normals_vectors(active);
+      break;
+    case 'tangents':
+      this.toggle_tangents(active);
+      break;
+    case 'selection-wireframe':
+      this.toggle_selection_wireframe(active);
+      break;
+    case 'origin-arrows':
+      this.toggle_origin_arrows(active);
+      break;
+    default:
+      break;
     }
   }
 
-  toggle_wireframe(active) {
-    this.model.traverse(child => {
-      if (child.isMesh) {
+  toggle_wireframe(active)
+  {
+    this.model.traverse(child =>
+    {
+      if (child.isMesh)
+      {
         child.material.wireframe = active;
       }
     });
   }
 
-  toggle_double_sided(active) {
-    this.model.traverse(child => {
-      if (child.isMesh) {
+  toggle_double_sided(active)
+  {
+    this.model.traverse(child =>
+    {
+      if (child.isMesh)
+      {
         child.material.side = active ? DoubleSide : FrontSide;
       }
     });
   }
 
-  toggle_normals(active) {
+  toggle_normals(active)
+  {
     this.scene.overrideMaterial = active ? new MeshNormalMaterial() : null;
   }
 
-  toggle_normals_vectors(active) {
+  toggle_normals_vectors(active)
+  {
     this.remove_normal_helpers();
-    if (active) {
+    if (active)
+    {
       this.populate_normal_helpers();
     }
   }
 
-  remove_normal_helpers() {
-    for (let i = 0; i < this.normal_helpers.length; i++) {
+  remove_normal_helpers()
+  {
+    for (let i = 0; i < this.normal_helpers.length; i++)
+    {
       this.scene.remove(this.normal_helpers[i]);
     }
   }
 
-  populate_normal_helpers() {
-    this.model.traverse(child => {
-      if (child.isMesh) {
+  populate_normal_helpers()
+  {
+    this.model.traverse(child =>
+    {
+      if (child.isMesh)
+      {
         const normal_helper = new VertexNormalsHelper(child, this.line_length, 0x00ff00);
         this.normal_helpers.push(normal_helper);
         this.scene.add(normal_helper);
@@ -484,75 +543,92 @@ class SceneController {
     });
   }
 
-  toggle_tangents(active) {
+  toggle_tangents(active)
+  {
     this.remove_tangent_helpers();
-    if (active) {
+    if (active)
+    {
       this.populate_tangent_helpers();
     }
   }
 
-  remove_tangent_helpers() {
-    for (let i = 0; i < this.tangent_helpers.length; i++) {
+  remove_tangent_helpers()
+  {
+    for (let i = 0; i < this.tangent_helpers.length; i++)
+    {
       this.scene.remove(this.tangent_helpers[i]);
     }
     this.tangent_helpers = [];
   }
 
-  populate_tangent_helpers() {
-    this.model.traverse(child => {
-      if (child.isMesh) {
+  populate_tangent_helpers()
+  {
+    this.model.traverse(child =>
+    {
+      if (child.isMesh)
+      {
         const geometry = child.geometry;
         // Check if geometry has all required attributes
         if (geometry.attributes.position &&
           geometry.attributes.normal &&
           geometry.attributes.uv &&
-          geometry.index) {
-          if (!geometry.attributes.tangent) {
+          geometry.index)
+        {
+          if (!geometry.attributes.tangent)
+          {
             geometry.computeTangents();
           }
           const tangent_helper = new VertexTangentsHelper(child, this.line_length, 0x00ff00);
           this.tangent_helpers.push(tangent_helper);
           this.scene.add(tangent_helper);
         }
-        else {
+        else
+        {
           console.warn('Mesh missing required attributes for tangent computation:', child.name);
         }
       }
     });
   }
 
-  toggle_selection_wireframe(active) {
+  toggle_selection_wireframe(active)
+  {
     this.selected_mesh.material.visible = active;
     this.selected_skinned_mesh.material.visible = active;
   }
 
-  toggle_origin_arrows(active) {
+  toggle_origin_arrows(active)
+  {
     this.axis_helper.visible = active;
     this.selected_empty_object.visible = active;
   }
 
-  set_line_length(value) {
+  set_line_length(value)
+  {
     this.line_length = value;
 
-    if (this.tangent_helpers.length > 0) {
+    if (this.tangent_helpers.length > 0)
+    {
       this.remove_tangent_helpers();
       this.populate_tangent_helpers();
     }
 
-    if (this.normal_helpers.length > 0) {
+    if (this.normal_helpers.length > 0)
+    {
       this.remove_normal_helpers();
       this.populate_normal_helpers();
     }
   }
 
-  clear_selection() {
+  clear_selection()
+  {
     this.selected_mesh.visible = false;
     this.selected_skinned_mesh.visible = false;
     this.selected_empty_object.visible = false;
     this.selected_instanced_mesh.visible = false;
   }
 
-  set_fov(value) {
+  set_fov(value)
+  {
     const fovRatio = Math.tan(MathUtils.degToRad(this.camera.fov) / 2) / Math.tan(MathUtils.degToRad(value) / 2);
 
     const direction = new Vector3();

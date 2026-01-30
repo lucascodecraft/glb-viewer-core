@@ -2,14 +2,17 @@ import { Details } from './Details';
 import { Panel } from './Panel';
 import { Settings } from './Settings';
 
-class UIController {
-  constructor() {
+class UIController
+{
+  constructor()
+  {
     this.details = new Details(this);
     this.panel = new Panel(this);
     this.settings = new Settings(this);
   }
 
-  init(scene_controller) {
+  init(scene_controller)
+  {
     this.scene_controller = scene_controller;
 
     this.details.init();
@@ -17,31 +20,39 @@ class UIController {
     this.settings.init(this.scene_controller);
   }
 
-  update() {
+  update()
+  {
 
   }
 
-  handle_object_click(object3d, instance_id) {
+  handle_object_click(object3d, instance_id)
+  {
     this.details.handle_object_click(object3d, instance_id);
-    if (this.panel.contents.hierarchy) {
+    if (this.panel.contents.hierarchy)
+    {
       this.panel.contents.hierarchy.handle_object_click(object3d, instance_id);
     }
     this.scene_controller.focus_camera_on_object(object3d, true, instance_id);
-    if (object3d.material && this.panel.contents.materials) {
+    if (object3d.material && this.panel.contents.materials)
+    {
       this.panel.contents.materials.material_details.update_material_details(object3d.material);
     }
   }
 
-  update_panel_contents(object3d) {
+  update_panel_contents(object3d)
+  {
     this.panel.update_contents(object3d);
   }
 
-  handle_action_click(action, active) {
+  handle_action_click(action, active)
+  {
     this.scene_controller.handle_action_click(action, active);
   }
 
-  open_material_details(material, centered = false) {
-    if (this.panel.contents.materials) {
+  open_material_details(material, centered = false)
+  {
+    if (this.panel.contents.materials)
+    {
       this.panel.contents.materials.material_details.show_material_details(material, centered);
     }
   }

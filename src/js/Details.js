@@ -1,7 +1,9 @@
 import { ResizableWindow } from './ResizeableWindow';
 
-class Details extends ResizableWindow {
-  constructor(ui_controller) {
+class Details extends ResizableWindow
+{
+  constructor(ui_controller)
+  {
     const $container = document.querySelector('.details');
     const $content = document.querySelector('.details__content');
     const $headers = document.querySelector('.details__header');
@@ -51,11 +53,14 @@ class Details extends ResizableWindow {
     this.$settings_close_button = document.querySelector('.details__settings-close-button');
   }
 
-  init() {
-    window.addEventListener('message', (event) => {
+  init()
+  {
+    window.addEventListener('message', (event) =>
+    {
       const message = event.data;
 
-      if (message.type === 'updateConfig') {
+      if (message.type === 'updateConfig')
+      {
         this.original_configuration = JSON.parse(JSON.stringify(message.config));
         this.relevant_object_keys = JSON.parse(JSON.stringify(message.config.relevant3dObjectKeys));
         this.prettify_property_labels = JSON.parse(JSON.stringify(message.config.prettifyPropertyLabels));
@@ -70,24 +75,29 @@ class Details extends ResizableWindow {
     this.$settings_close_button.addEventListener('click', this.toggle_settings.bind(this));
   }
 
-  reset_details() {
+  reset_details()
+  {
     this.$content.innerHTML = '';
     this.$container.classList.add('hidden');
   }
 
-  handle_object_click(obj3d) {
+  handle_object_click(obj3d)
+  {
     this.current_object = obj3d;
     this.show_object_details();
   }
 
-  show_object_details() {
+  show_object_details()
+  {
     this.$content.innerHTML = '';
     const details = this.create_detail_item(this.current_object);
-    for (let i = 0; i < details.length; i++) {
+    for (let i = 0; i < details.length; i++)
+    {
       this.$content.appendChild(details[i]);
     }
 
-    if (!this.has_changed) {
+    if (!this.has_changed)
+    {
       this.$container.style.right = '10px';
       this.$container.style.left = 'initial';
       this.$container.style.top = '54px';
@@ -96,29 +106,35 @@ class Details extends ResizableWindow {
     this.$container.classList.remove('hidden');
   }
 
-  create_detail_item(obj) {
+  create_detail_item(obj)
+  {
     const details = [];
     const ICON_SVG = '<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"> <path d="M4 2h11v2H6v13H4V2zm4 4h12v16H8V6zm2 2v12h8V8h-8z" fill="currentColor"/> </svg>';
     const relevant_keys = this.relevant_object_keys;
-    for (let i = 0; i < relevant_keys.length; i++) {
+    for (let i = 0; i < relevant_keys.length; i++)
+    {
       const key = relevant_keys[i];
 
       let value = obj[key] || 'undefined';
-      if (value && typeof value === 'object') {
-        switch (true) {
-          case value.isVector3:
-            value = value.x.toFixed(2) + ', ' + value.y.toFixed(2) + ', ' + value.z.toFixed(2);
-            break;
-          case value.isEuler:
-            value = value.x.toFixed(2) + ', ' + value.y.toFixed(2) + ', ' + value.z.toFixed(2);
-            break;
-          default:
-            value = JSON.stringify(value);
+      if (value && typeof value === 'object')
+      {
+        switch (true)
+        {
+        case value.isVector3:
+          value = value.x.toFixed(2) + ', ' + value.y.toFixed(2) + ', ' + value.z.toFixed(2);
+          break;
+        case value.isEuler:
+          value = value.x.toFixed(2) + ', ' + value.y.toFixed(2) + ', ' + value.z.toFixed(2);
+          break;
+        default:
+          value = JSON.stringify(value);
         }
       }
 
-      if (key === 'type') {
-        if (obj.geometry) {
+      if (key === 'type')
+      {
+        if (obj.geometry)
+        {
           value = this.get_mesh_type(obj);
           value += ` (${obj.geometry.attributes.position.count} vertices)`;
         }
@@ -140,7 +156,8 @@ class Details extends ResizableWindow {
       $item_label.title = key;
       $item_content.textContent = value;
 
-      if (key === 'type' && obj.isInstancedMesh) {
+      if (key === 'type' && obj.isInstancedMesh)
+      {
         const $instanced_item_content = document.createElement('div');
         $instanced_item_content.classList.add('details__item-content');
         $new_details_item.appendChild($instanced_item_content);
@@ -151,10 +168,12 @@ class Details extends ResizableWindow {
       $item_copy_icon.classList.add('details__item-copy-icon');
       $item_copy_icon.classList.add('hidden');
       $item_copy_icon.innerHTML = ICON_SVG;
-      $new_details_item.addEventListener('mouseenter', () => {
+      $new_details_item.addEventListener('mouseenter', () =>
+      {
         $item_copy_icon.classList.remove('hidden');
       });
-      $new_details_item.addEventListener('mouseleave', () => {
+      $new_details_item.addEventListener('mouseleave', () =>
+      {
         $item_copy_icon.classList.add('hidden');
       });
       $new_details_item.appendChild($item_copy_icon);
@@ -164,17 +183,22 @@ class Details extends ResizableWindow {
     }
 
     // Add material button if object has a material
-    if (obj.material) {
-      if (Array.isArray(obj.material)) {
+    if (obj.material)
+    {
+      if (Array.isArray(obj.material))
+      {
         // Handle array of materials
-        for (let i = 0; i < obj.material.length; i++) {
-          if (obj.material[i]) {
+        for (let i = 0; i < obj.material.length; i++)
+        {
+          if (obj.material[i])
+          {
             const $material_button = this.create_material_button(obj.material[i], i);
             details.push($material_button);
           }
         }
       }
-      else {
+      else
+      {
         // Handle single material
         const $material_button = this.create_material_button(obj.material);
         details.push($material_button);
@@ -184,7 +208,8 @@ class Details extends ResizableWindow {
     return details;
   }
 
-  create_material_button(material) {
+  create_material_button(material)
+  {
     const $material_button = document.createElement('div');
 
     $material_button.classList.add('button');
@@ -193,7 +218,8 @@ class Details extends ResizableWindow {
     $material_button.textContent = 'Ver detalhes do material';
     $material_button.title = 'Clique para ver detalhes do material';
 
-    $material_button.addEventListener('click', (e) => {
+    $material_button.addEventListener('click', (e) =>
+    {
       e.stopPropagation();
       this.open_material_details(material);
     });
@@ -201,62 +227,77 @@ class Details extends ResizableWindow {
     return $material_button;
   }
 
-  open_material_details(material) {
+  open_material_details(material)
+  {
     this.ui_controller.open_material_details(material, true);
   }
 
-  copy_to_clipboard(text) {
+  copy_to_clipboard(text)
+  {
     navigator.clipboard.writeText(text);
 
     this.$header_message.textContent = 'Copiado!';
     this.$header_title.classList.add('hidden');
     this.$header_message.classList.remove('faded');
 
-    setTimeout(() => {
+    setTimeout(() =>
+    {
       this.$header_message.classList.add('faded');
       this.$header_title.classList.remove('hidden');
     }, 1000);
   }
 
-  prettify_name(name) {
-    if (this.prettify_property_labels) {
+  prettify_name(name)
+  {
+    if (this.prettify_property_labels)
+    {
       const spaced = name.replace(/([A-Z])/g, ' $1').toLowerCase();
       return spaced.charAt(0).toUpperCase() + spaced.slice(1);
     }
-    else {
+    else
+    {
       return name;
     }
   }
 
-  get_mesh_type(obj) {
-    if (obj.isSkinnedMesh) {
+  get_mesh_type(obj)
+  {
+    if (obj.isSkinnedMesh)
+    {
       return 'SkinnedMesh';
     }
-    if (obj.isInstancedMesh) {
+    if (obj.isInstancedMesh)
+    {
       return 'InstancedMesh';
     }
-    if (obj.isMesh) {
+    if (obj.isMesh)
+    {
       return 'Mesh';
     }
     return obj.type;
   }
 
-  toggle_settings() {
-    if (this.$settings.classList.contains('hidden')) {
+  toggle_settings()
+  {
+    if (this.$settings.classList.contains('hidden'))
+    {
       this.$settings.classList.remove('hidden');
       this.$open_settings.classList.add('hidden');
       this.$close_settings.classList.remove('hidden');
     }
-    else {
+    else
+    {
       this.$settings.classList.add('hidden');
       this.$open_settings.classList.remove('hidden');
       this.$close_settings.classList.add('hidden');
     }
   }
 
-  fill_settings_list() {
+  fill_settings_list()
+  {
     this.$settings_list.innerHTML = '';
-    for (let i = 0; i < this.all_object_keys.length; i++) {
+    for (let i = 0; i < this.all_object_keys.length; i++)
+    {
       const key = this.all_object_keys[i];
       const $setting_item = document.createElement('div');
       $setting_item.dataset.settingKey = key;
@@ -275,10 +316,12 @@ class Details extends ResizableWindow {
       $setting_item.appendChild($closed_eye_icon);
       $setting_item.addEventListener('click', this.toggle_setting.bind(this, $setting_item));
 
-      if (this.relevant_object_keys.includes(key)) {
+      if (this.relevant_object_keys.includes(key))
+      {
         $eye_icon.classList.remove('hidden');
       }
-      else {
+      else
+      {
         $closed_eye_icon.classList.remove('hidden');
         $setting_item.classList.add('not-relevant');
       }
@@ -287,7 +330,8 @@ class Details extends ResizableWindow {
     }
   }
 
-  show_setting($setting_item) {
+  show_setting($setting_item)
+  {
     this.relevant_object_keys.push($setting_item.dataset.settingKey);
 
     this.show_object_details();
@@ -300,7 +344,8 @@ class Details extends ResizableWindow {
     closed_eye_icon.classList.add('hidden');
   }
 
-  hide_setting($setting_item) {
+  hide_setting($setting_item)
+  {
     const index = this.relevant_object_keys.indexOf($setting_item.dataset.settingKey);
     this.relevant_object_keys.splice(index, 1);
     this.show_object_details();
@@ -314,11 +359,14 @@ class Details extends ResizableWindow {
     $setting_item.classList.add('not-relevant');
   }
 
-  toggle_setting($setting_item) {
-    if (this.relevant_object_keys.includes($setting_item.dataset.settingKey)) {
+  toggle_setting($setting_item)
+  {
+    if (this.relevant_object_keys.includes($setting_item.dataset.settingKey))
+    {
       this.hide_setting($setting_item);
     }
-    else {
+    else
+    {
       this.show_setting($setting_item);
     }
   }
